@@ -1,4 +1,4 @@
-// Array to store book data
+// Array to store student data
 const students = [];
 
 // Function to display students in the list
