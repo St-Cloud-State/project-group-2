@@ -1,0 +1,28 @@
+<html>
+
+<head>
+    <title>University</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+
+<body>
+    <h1>Students</h1>
+
+    <!-- Display students in this div -->
+    <div id="studentList">
+        <!-- student data will be displayed here dynamically -->
+    </div>
+
+    <button id="showStudentsButton" onclick="getAllStudents()">Show All Students</button>
+
+    <!-- Display students in this div -->
+    <div id="allstudents">
+        <!-- student data will be displayed here dynamically -->
+    </div>
+
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
