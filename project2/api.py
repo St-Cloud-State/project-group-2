@@ -35,6 +35,37 @@ def get_all_students():
     except Exception as e:
         return jsonify({'error': str(e)})
 
+# Add Student
+@app.route('/api/add_student', methods=['POST'])
+def add_student():
+    try:    
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+
+        data = request.get_json()
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        dob = data.get('dob')
+        email = data.get('email')
+        address = data.get('address')
+        phone = data.get('phone')
+
+        cursor.execute("""
+        INSERT INTO students (first_name, last_name, date_of_birth, email, address, phone) VALUES (?, ?, ?, ?, ?, ?)
+                       """,(first_name, last_name, dob, email, address, phone))
+        conn.commit()
+        conn.close()
+
+        return jsonify({'message': 'Student Added Successfully'}), 200
+
+    except Exception as e:
+        print(f"Error: {str(e)}") 
+        return jsonify({'error': str(e)}), 500
+
+# Add Course
+
+# Add section
+
 # Route to render the index.html page
 @app.route('/')
 def index():
