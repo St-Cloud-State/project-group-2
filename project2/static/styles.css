@@ -2,3 +2,10 @@
 #showStudentsButton {
     margin: 20px; /* Adjust the margin as needed */
 }
+
+.customTextArea {
+    width: 30%;       /* Makes it stretch to full width */
+    height: 100px;     /* Default height */
+    resize: vertical;  /* Allows vertical resizing but prevents horizontal */
+    padding: 10px;     /* Adds spacing inside the textarea */
+}

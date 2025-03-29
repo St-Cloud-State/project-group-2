@@ -63,7 +63,31 @@ def add_student():
         return jsonify({'error': str(e)}), 500
 
 # Add Course
+@app.route('/api/add_course', methods=['POST'])
+def add_course():
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
 
+        data = request.get_json()
+
+        course_id = data.get('course_id')
+        course_name = data.get('course_name')
+        course_description = data.get('course_description')
+        number_credits = data.get('number_credits')
+
+        cursor.execute("""
+        INSERT INTO courses (course_id, course_name, course_description, number_credits) VALUES (?, ?, ?, ?)
+                        """,(course_id, course_name, course_description, number_credits))
+        
+        conn.commit()
+        conn.close()
+
+        return jsonify({'message': 'Course Added Successfully'}), 200
+    
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 # Add section
 
 # Route to render the index.html page
