@@ -1,0 +1,106 @@
+<html>
+
+<head>
+    <title>University</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+
+<body>
+    <h1>Add Students, Courses, and Sections</h1>
+    <!--Add student form-->
+    <div id="addStudent">
+        <h2>Add a Student</h2>
+        <form id = "studentForm" onsubmit="addStudent()">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+            <br><br>
+    
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+            <br><br>
+    
+            <label for="dob">Date of Birth:</label>
+            <input type="text" id="dob" name="dob" placeholder="MM-DD-YYYY)" required>
+            <br><br>
+    
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" name="email" placeholder="Email Address" required>
+            <br><br>
+    
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" placeholder="Address" required>
+            <br><br>
+
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" placeholder="City" required>
+            <br><br>
+    
+            <label for="state">State:</label>
+            <input type="text" id="state" name="state" placeholder="State" required>
+            <br><br>
+    
+            <label for="zip">ZIP Code:</label>
+            <input type="text" id="zip" name="zip" placeholder="ZIP Code" pattern="\d{5}" title="Enter a valid 5-digit ZIP code" required>
+            <br><br>
+    
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" name="phone" placeholder="555-555-5555" pattern="\d{3}-\d{3}-\d{4}" title="Enter a valid phone number" required>
+            <br><br>
+    
+            <button type="submit">Add Student</button>
+        </form>
+    </div>
+    <!-- Display students in this div -->
+    <div id="studentList">
+        <!-- student data will be displayed here dynamically -->
+    </div>
+
+    <div id="addCourse">
+        <h2>Add a Course</h2>
+        <form id = "courseForm" onsubmit="addCourse()">
+            <label for="rubric">Rubric:</label>
+            <input type="text" id="rubric" name="rubric" placeholder="eg. MATH, CSCI etc." title="Enter a valid course rubric" required>
+            <br><br>
+
+            <label for="course_number">Course Number:</label>
+            <input type="text" id="course_number" name="course_number" placeholder="1400" title="Enter a valid course number" required>
+            <br><br>
+
+            <label for="course_name">Course Name:</label>
+            <input type="text" id="course_name" name="course_name" placeholder="Linear Algebra" title="Enter a valid course name" required>
+            <br><br>
+
+            <label for="course_description">Course Description:</label>
+            <input class="customTextArea" id="course_description" name="course_description" placeholder="Describe the course" title="Enter a course description" required>
+            <br><br>
+
+            <label for="number_credits">Number of Credits:</label>
+            <input type="number" min="1" max="5" class="numeric-input" id="number_credits" name="number_credits" title="Enter a valid number of credits " required>
+            <br><br>
+
+            <button type="submit">Add Course</button>
+        </form>
+    </div>
+    </div>
+    <!-- Display courses in this div -->
+    <div id="courseList">
+        <!-- course data will be displayed here dynamically -->
+    </div>
+    
+    
+    
+    <button id="showStudentsButton" onclick="showAllStudents()">Show All Students</button>
+    <button id="showCoursesButton" onclick="showAllCourses()">Show All Courses</button>
+    <!-- Display students in this div -->
+    <div id="allstudents">
+        <!-- student data will be displayed here dynamically -->
+    </div>
+
+
+
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
