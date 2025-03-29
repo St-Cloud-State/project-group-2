@@ -35,6 +35,31 @@ def get_all_students():
     except Exception as e:
         return jsonify({'error': str(e)})
 
+# Get all courses
+@app.route('/api/courses', methods=['GET'])
+def get_all_courses():
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM courses")
+        courses = cursor.fetchall()
+        conn.close()
+
+        course_list = []
+        for course in courses:
+            course_dict = {
+                'course_id': course[0],
+                'course_name': course[1],
+                'course_description': course[2],
+                'number_credits': course[3],
+            }
+
+            course_list.append(course_dict)
+        
+        return jsonify({'courses': course_list})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
 # Add Student
 @app.route('/api/add_student', methods=['POST'])
 def add_student():

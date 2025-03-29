@@ -162,3 +162,29 @@ function showAllStudents() {
         });
 }
 
+// Function to fetch and display all courses
+function showAllCourses() {
+    fetch('/api/courses')
+        .then(response => response.json())
+        .then(data => {
+            const courseList = document.getElementById('allstudents');
+            courseList.innerHTML = ''; // clear the list
+            
+            console.log(data);
+
+            data.courses.forEach(course => {
+                const courseElement = document.createElement('div');
+                courseElement.innerHTML = `
+                    <h2>${course.course_id} ${course.course_name}</h2>
+                    <p>Description: ${course.course_description}</p>
+                    <p>Credits: ${course.number_credits}</p>
+                `;
+                courseList.appendChild(courseElement);
+            });
+         
+        })
+        .catch(error => {
+            console.error('Error fetching courses', error)
+        });
+}
+
