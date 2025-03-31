@@ -82,6 +82,33 @@
             <button type="submit">Add Course</button>
         </form>
     </div>
+
+    <div id = "addSection">
+        <h2>Add a section</h2>
+        <form id = "sectionForm" onsubmit="addSection()">
+
+
+            <label for="course_ID">Course ID:</label>
+            <input type="text" id = "course_ID" name = "course_ID" placeholder="Math 221" title="Enter the course ID" required>
+            <br><br>
+
+            <label for="semester">Semester:</label>
+            <input type = "text" id="semester" name = "semester" placeholder="Fa23" title="Enter the semester" required>
+            <br><br>
+
+            <label for="year">Year:</label>
+            <input type="number" id="year" name="year" placeholder="21" title="Enter the last two digits of the year" required>
+            <br><br>
+
+            <label for="instructor">Instructor:</label>
+            <input type="text" id="instructor" name="instructor" placeholder="Dr. Petzold" title="Enter the instructor's name" required>
+            <br><br>
+
+            <button type="submit">Add Section</button>
+        </form>
+
+
+    </div>
     </div>
     <!-- Display courses in this div -->
     <div id="courseList">

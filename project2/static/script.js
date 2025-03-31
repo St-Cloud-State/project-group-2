@@ -87,9 +87,9 @@ function addStudent(event) {
         console.error('Error adding student:', error);
     });
 }
-
 // Attach the addStudent function to the form submit event
 document.getElementById('studentForm').addEventListener('submit', addStudent);
+
 
 // Add course
 function addCourse(event) {
@@ -138,6 +138,42 @@ function addCourse(event) {
 
 // add the listener
 document.getElementById('courseForm').addEventListener('submit', addCourse);
+
+//Add section
+function addSection(event){
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('sectionForm'));
+
+    //Make section data object
+    const sectionData = {
+        course_id:  formData.get('course_ID'),
+        semester: formData.get('semester'),
+        year:   formData.get('year'),
+        instructor: formData.get('instructor')
+
+    };
+
+    //Send data to backend
+    fetch('/api/add_section', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(sectionData)
+    })
+
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+
+            sections.push(sectionData);
+            console.log(sections)
+            document.getElementById('sectionForm').reset();
+
+            //Add display sections!!!!!!!!!!!!!!!!!!
+        })
+
+}
+
+document.getElementById('sectionForm').addEventListener('submit', addSection);
 
 // Function to fetch and display all students from the server
 function showAllStudents() {
