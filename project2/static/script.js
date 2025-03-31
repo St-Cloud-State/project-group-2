@@ -141,6 +141,7 @@ document.getElementById('courseForm').addEventListener('submit', addCourse);
 
 //Add section
 function addSection(event){
+    event.preventDefault();
     const formData = new FormData(document.getElementById('sectionForm'));
 
     //Make section data object
@@ -173,18 +174,6 @@ function addSection(event){
 }
 
 document.getElementById('sectionForm').addEventListener('submit', addSection);
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Function to fetch and display all students from the server
 function showAllStudents() {

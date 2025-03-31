@@ -113,33 +113,42 @@ def add_course():
     except Exception as e:
         print(f"Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
+    
+
 # Add section
 @app.route('/api/add_section', methods = ['POST'])
 def add_section():
-    #Section id
-    #course id
-    #semster
-    #year
-    #instructor
+    
     try:
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
 
         data = request.get_json()
 
-        #section_id = data.get('section_id')
+        
         course_id = data.get('course_id')
         semester = data.get('semester')
         year = data.get('year')
         instructor = data.get('instructor')
 
-        cursor.execute("""
-        INSERT INTO sections ( course_id, semester, year, instructor) VALUES ( ?, ?, ?, ?)""",
-        ( course_id, semester, year, instructor))
-        conn.commit()
-        conn.close()
 
-        return jsonify({'message': 'Section Added Successfully'}), 200
+        #Checking if the section has a course that exists
+        cursor.execute("SELECT 1 FROM courses WHERE course_id = ?", (course_id,))
+        exists = cursor.fetchone() is not None
+
+        if exists:
+            cursor.execute("""
+            INSERT INTO sections (course_id, semester, year, instructor) VALUES ( ?, ?, ?, ?)""",
+            (course_id, semester, year, instructor))
+            conn.commit()
+            conn.close()
+
+            return jsonify({'message': 'Section Added Successfully'}), 200
+        else:
+            conn.commit()
+            conn.close()
+            return jsonify({'message': 'The course for this section does not exist'}), 400
+
     except Exception as e:
          print(f"Error: {str(e)}")
          return jsonify({'error': str(e)}), 500
