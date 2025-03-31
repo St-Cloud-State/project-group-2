@@ -145,7 +145,6 @@ function addSection(event){
 
     //Make section data object
     const sectionData = {
-        section_id: formData.get('section_ID'),
         course_id:  formData.get('course_ID'),
         semester: formData.get('semester'),
         year:   formData.get('year'),

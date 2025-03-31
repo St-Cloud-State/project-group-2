@@ -127,15 +127,15 @@ def add_section():
 
         data = request.get_json()
 
-        section_id = data.get('section_id')
+        #section_id = data.get('section_id')
         course_id = data.get('course_id')
         semester = data.get('semester')
         year = data.get('year')
         instructor = data.get('instructor')
 
         cursor.execute("""
-        INSERT INTO sections (section_id, course_id, semester, year, instructor) VALUES (?, ?, ?, ?, ?)""",
-        (section_id, course_id, semester, year, instructor))
+        INSERT INTO sections ( course_id, semester, year, instructor) VALUES ( ?, ?, ?, ?)""",
+        ( course_id, semester, year, instructor))
         conn.commit()
         conn.close()
 
