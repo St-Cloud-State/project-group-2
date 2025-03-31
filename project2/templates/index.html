@@ -116,7 +116,9 @@
     </div>
     
     
-    
+
+
+
     <button id="showStudentsButton" onclick="showAllStudents()">Show All Students</button>
     <button id="showCoursesButton" onclick="showAllCourses()">Show All Courses</button>
     <!-- Display students in this div -->
@@ -125,6 +127,12 @@
     </div>
 
 
+    <h2>Search Course Sections</h2>
+    <input type="text" id="searchCourseID" placeholder="Enter Course ID">
+    <button onclick="searchSections()">Search</button>
+
+    <!-- Section list will be displayed here -->
+    <div id="sectionList"></div>
 
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>

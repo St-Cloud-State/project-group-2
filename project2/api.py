@@ -154,6 +154,44 @@ def add_section():
          return jsonify({'error': str(e)}), 500
     
 
+
+# Search Sections by Course ID
+@app.route('/api/search_sections', methods=['GET'])
+def search_sections():
+    try:
+        course_id = request.args.get('course_id')
+
+        if not course_id:
+            return jsonify({'error': 'course_id parameter is required'}), 400
+
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM sections WHERE course_id = ?", (course_id,))
+        sections = cursor.fetchall()
+        conn.close()
+
+        if not sections:
+            return jsonify({'message': 'No sections found for the given course_id'}), 404
+
+        # Convert results into a list of dictionaries
+        section_list = []
+        for section in sections:
+            section_dict = {
+                'section_id': section[0],
+                'course_id': section[1],
+                'semester': section[2],
+                'year': section[3],
+                'instructor': section[4],
+            }
+            section_list.append(section_dict)
+
+        return jsonify({'sections': section_list})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
 # Route to render the index.html page
 @app.route('/')
 def index():

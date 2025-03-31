@@ -224,3 +224,40 @@ function showAllCourses() {
         });
 }
 
+// Function to search for course sections
+function searchSections() {
+    const courseID = document.getElementById('searchCourseID').value.trim();
+
+    if (!courseID) {
+        alert("Please enter a Course ID.");
+        return;
+    }
+
+    fetch(`/api/search_sections?course_id=${courseID}`)
+        .then(response => response.json())
+        .then(data => {
+            const sectionList = document.getElementById('sectionList');
+            sectionList.innerHTML = ''; // Clear previous results
+
+            if (data.sections && data.sections.length > 0) {
+                data.sections.forEach(section => {
+                    const sectionElement = document.createElement('div');
+                    sectionElement.innerHTML = `
+                        <h3>Section ID: ${section.section_id}</h3>
+                        <p>Course ID: ${section.course_id}</p>
+                        <p>Semester: ${section.semester}</p>
+                        <p>Year: ${section.year}</p>
+                        <p>Instructor: ${section.instructor}</p>
+                        <hr>
+                    `;
+                    sectionList.appendChild(sectionElement);
+                });
+            } else {
+                sectionList.innerHTML = '<p>No sections found for the given Course ID.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching sections:', error);
+            alert('An error occurred while searching for sections.');
+        });
+}
