@@ -190,7 +190,10 @@ def search_sections():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
+# route for queries
+@app.route('/api/search')
+def query():
+    
 
 # Route to render the index.html page
 @app.route('/')

@@ -261,3 +261,145 @@ function searchSections() {
             alert('An error occurred while searching for sections.');
         });
 }
+
+
+// Map of predefined query options
+const queryMap = {
+    students: [
+        { label: "Find Student by ID", value: "student_by_id", needsInput: true },
+        { label: "Find Students by City", value: "student_by_city", needsInput: true },
+        { label: "Find Students by Zipcode", value: "student_by_zip", needsInput: true },
+        { label: "Find Students by Email", value: "student_by_email", needsInput: true },
+        { label: "Find Students by First Name", value: "student_by_first", needsInput: true },
+        { label: "Find Students by Last Name", value: "student_by_last", needsInput: true },
+        { label: "Find Student by Full Name", value: "student_by_full", needsInput: ["First Name", "Last Name"] }
+    ],  
+    
+    courses: [
+        { label: "Find Course by ID", value: "course_by_id", needsInput: true },
+        { label: "List Courses with specific Rubric", value: "course_by_rubric", needsInput: true },
+        { label: "List Courses with specific number of credits", value: "course_by_credit", needsInput: true },
+        { label: "List Courses with sections in a specific semester, year, and rubric", value: "course_by_sem_year_rub", needsInput: ["semester", "year", "rubric"] },
+    ],
+
+    sections: [
+        { label: "Find Section by ID", value: "section_by_id", needsInput: true },
+        { label: "List Sections offered in a specific semester", value: "section_by_semester", needsInput: true },
+        { label: "List Sections offered in a specific year", value: "section_by_year", needsInput: true },
+        { label: "List Sections of a Course", value: "section_by_course", needsInput: true },
+        { label: "List Sections with a specified Instructor", value: "section_by_instructor", needsInput: true },
+        
+    ]
+}
+
+// Change listenter - for when a selection is changed in the dropdown
+var value = document.getElementById('queryTable').onchange = queryOptions;
+
+
+// Function to update the query options dropdown
+function queryOptions() {
+    const table = this.value;
+    console.log(table);
+
+    var str = "";
+    console.log(queryMap[table]);
+
+    queryMap[table].forEach(query => {
+    
+        str += "<option>" + query.label + "</option>"
+    })
+        
+    
+    document.getElementById('queryOptions').innerHTML = str;
+}
+
+var optionValue = document.getElementById('queryOptions').onchange = inputFields;
+
+// Function to dynamically add or remove text input based on query selection
+function inputFields() {
+    const selectedQuery = document.getElementById('queryOptions').value;
+    const table = document.getElementById('queryTable').value;
+    const queryParamContainer = document.getElementById('queryParamContainer');
+
+    // Clear inputs
+    queryParamContainer.innerHTML = "";
+
+    // Find the correct query in the map
+    const selectedQueryOption = queryMap[table].find(q => q.label === selectedQuery);
+    console.log(selectedQueryOption);
+    if (selectedQueryOption.needsInput) {
+        if(Array.isArray(selectedQueryOption.needsInput)) {
+
+            // Create multiple input fields 
+            selectedQueryOption.needsInput.forEach(field => {
+                var label = document.createElement("label");
+                label.innerText = `Enter ${field}:`;
+
+                var input = document.createElement("input");
+                input.type = field === "credits" ? "number" : "text";
+                input.id = field;
+                input.placeholder = `Enter ${field}`;
+
+                queryParamContainer.appendChild(label);
+                queryParamContainer.appendChild(input);
+
+            });
+        } else {
+            
+            // One input
+            var input = document.createElement("input");
+            input.type = "text";
+            input.id = "queryParam";
+            input.placeholder = "Enter query term";
+            queryParamContainer.appendChild(input);
+        }
+    }
+}
+
+// Function to make the query
+function search() {
+    
+    const table = document.getElementById('queryTable').value;
+    const option = document.getElementById('queryOptions').value;
+
+    var requestData = { option };
+
+    // Find the selected query option in the query map
+    const selectedQueryOption = queryMap[table].find(q => q.label === option);
+
+    if (selectedQueryOption.needsInput) {
+        if (Array.isArray(selectedQueryOption.needsInput)) {
+            // Get multiple input values
+            selectedQueryOption.needsInput.forEach(field => {
+                requestData[field] = document.getElementById(field).value.trim();
+            });
+        } else {
+            // single input
+            requestData.value = document.getElementById('queryParam').value.trim();
+        }
+    }
+
+    console.log("Request: ", requestData)
+
+    fetch('/api/search')
+        .then(response => response.json())
+        .then(data => {
+            const results = document.getElementById('queryResults');
+            results.innerHTML = ''; // Clear previous results
+
+            
+
+            if (data.sections && data.sections.length > 0) {
+                data.sections.forEach(section => {
+                
+                });
+            } else {
+                sectionList.innerHTML = '<p>No sections found for the given Course ID.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching sections:', error);
+            alert('An error occurred while searching for sections.');
+        });
+}
+
