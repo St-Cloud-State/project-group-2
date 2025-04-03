@@ -190,9 +190,116 @@ def search_sections():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# route for queries
-#@app.route('/api/search')
-#def query():
+
+
+# Function to execute raw SQL queries
+def execute_query(query, params=None):
+    conn = sqlite3.connect(DATABASE)
+    with conn.cursor() as cursor:
+        cursor.execute(query, params)
+        result = cursor.fetchall()  # Fetch all results
+    return result
+
+# predefined query helper functions
+def search_student_by_id(value):
+    query = "SELECT * FROM students WHERE id = %s"
+    return execute_query(query, [value])
+
+def search_student_by_city(value):
+    query = "SELECT * FROM students WHERE city = %s"
+    return execute_query(query, [value])
+
+def search_student_by_zip(value):
+    query = "SELECT * FROM students WHERE zipcode = %s"
+    return execute_query(query, [value])
+
+def search_student_by_email(value):
+    query = "SELECT * FROM students WHERE email = %s"
+    return execute_query(query, [value])
+
+def search_student_by_first(value):
+    query = "SELECT * FROM students WHERE first_name LIKE %s"
+    return execute_query(query, ['%' + value + '%'])
+
+def search_student_by_last(value):
+    query = "SELECT * FROM students WHERE last_name LIKE %s"
+    return execute_query(query, ['%' + value + '%'])
+
+def search_student_by_full(first_name, last_name):
+    query = "SELECT * FROM students WHERE first_name LIKE %s AND last_name LIKE %s"
+    return execute_query(query, ['%' + first_name + '%', '%' + last_name + '%'])
+
+def search_course_by_id(value):
+    query = "SELECT * FROM courses WHERE course_id = %s"
+    return execute_query(query, [value])
+
+def search_course_by_rubric(value):
+    query = "SELECT * FROM courses WHERE course_id = %s"
+    return execute_query(query, [value])
+
+def search_course_by_credit(value):
+    query = "SELECT * FROM courses WHERE credits = %s"
+    return execute_query(query, [value])
+
+def search_course_by_sem_year_rub(semester, year, rubric):
+    query = "SELECT * FROM courses WHERE semester = %s AND year = %s AND rubric = %s"
+    return execute_query(query, [semester, year, rubric])
+
+def search_section_by_id(value):
+    query = "SELECT * FROM sections WHERE section_id = %s"
+    return execute_query(query, [value])
+
+def search_section_by_semester(value):
+    query = "SELECT * FROM sections WHERE semester = %s"
+    return execute_query(query, [value])
+
+def search_section_by_year(value):
+    query = "SELECT * FROM sections WHERE year = %s"
+    return execute_query(query, [value])
+
+def search_section_by_course(value):
+    query = "SELECT * FROM sections WHERE course_id = %s"
+    return execute_query(query, [value])
+
+def search_section_by_instructor(value):
+    query = "SELECT * FROM sections WHERE instructor LIKE %s"
+    return execute_query(query, ['%' + value + '%'])
+
+
+# dictionary - maps query options to handler functions
+QUERY_HANDLERS = {
+    'student_by_id': search_student_by_id,
+    'student_by_city': search_student_by_city,
+    'student_by_zip': search_student_by_zip,
+    'student_by_email': search_student_by_email,
+    'student_by_first': search_student_by_first,
+    'student_by_last': search_student_by_last,
+    'student_by_full': search_student_by_full,
+    'course_by_id': search_course_by_id,
+    'course_by_rubric': search_course_by_rubric,
+    'course_by_credit': search_course_by_credit,
+    'course_by_sem_year_rub': search_course_by_sem_year_rub,
+    'section_by_id': search_section_by_id,
+    'section_by_semester': search_section_by_semester,
+    'section_by_year': search_section_by_year,
+    'section_by_course': search_section_by_course,
+    'section_by_instructor': search_section_by_instructor,
+}
+#route for queries
+@app.route('/api/search', methods=['POST'])
+def query():
+    try:
+        query_type = request.POST.get('option')
+        data = {}
+
+        if handler:
+            if query_type == 'student_by_full':
+                first_name = request.POST.get('First Name')
+                last_name = request.POST.get('Last Name')
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500    
+
     
 
 # Route to render the index.html page

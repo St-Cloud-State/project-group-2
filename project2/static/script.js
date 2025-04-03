@@ -313,7 +313,8 @@ function queryOptions() {
     document.getElementById('queryOptions').innerHTML = str;
 }
 
-var optionValue = document.getElementById('queryOptions').onchange = inputFields;
+// Change listener
+document.getElementById('queryOptions').onchange = inputFields;
 
 // Function to dynamically add or remove text input based on query selection
 function inputFields() {
@@ -381,25 +382,58 @@ function search() {
 
     console.log("Request: ", requestData)
 
-    fetch('/api/search')
-        .then(response => response.json())
-        .then(data => {
-            const results = document.getElementById('queryResults');
-            results.innerHTML = ''; // Clear previous results
+    fetch('/api/search', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        const results = document.getElementById('queryResults');
+        results.innerHTML = ''; // Clear previous results
 
-            
-
-            if (data.sections && data.sections.length > 0) {
-                data.sections.forEach(section => {
-                
-                });
-            } else {
-                sectionList.innerHTML = '<p>No sections found for the given Course ID.</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching sections:', error);
-            alert('An error occurred while searching for sections.');
+        // Check the response data
+        if(data.students) {
+            data.students.forEach(student => {
+                const studentElement = document.createElement('div');
+                studentElement.innerHTML = `
+                    <h2>${student.first_name} ${student.last_name}</h2>
+                    <p>Student ID: ${student.student_id}</p>
+                    <p>DOB: ${student.date_of_birth}</p>
+                    <p>Email: ${student.email}</p>
+                    <p>Adress: ${student.adress}</p>
+                `;
+            });
+        } else if (data.courses) {
+            data.courses.forEach(course => {
+                const courseElement = document.createElement('div');
+                courseElement.innerHTML = `
+                    <h2>${course.course_id} ${course.course_name}</h2>
+                    <p>Course Description: ${course.description}</p>
+                    <p>Credits: ${course.number_credits}</p>
+                `;
+            });
+        } else if (data.sections) {
+            data.sections.forEach(section => {
+                const sectionElement = document.createElement('div');
+                sectionElement.innerHTML = `
+                    <h3>Section ID: ${section.section_id}</h3>
+                    <p>Course ID: ${section.course_id}</p>
+                    <p>Semester: ${section.semester}</p>
+                    <p>Year: ${section.year}</p>
+                    <p>Instructor: ${section.instructor}</p>
+            `;
+        });
+        } else {
+            // no data found
+            results.innerHTML = '<p>No results found for the query.</p>';
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+        alert('An error occurred while searching for data.');
         });
 }
 
