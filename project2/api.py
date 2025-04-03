@@ -191,8 +191,8 @@ def search_sections():
         return jsonify({'error': str(e)}), 500
 
 # route for queries
-@app.route('/api/search')
-def query():
+#@app.route('/api/search')
+#def query():
     
 
 # Route to render the index.html page
