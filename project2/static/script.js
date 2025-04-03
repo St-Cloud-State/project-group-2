@@ -361,12 +361,12 @@ function inputFields() {
 function search() {
     
     const table = document.getElementById('queryTable').value;
-    const option = document.getElementById('queryOptions').value;
-
-    var requestData = { option };
+    const optionLabel = document.getElementById('queryOptions').value;
+    const optionValue = queryMap[table].find(query => query.label === optionLabel).value;
+    var requestData = { optionValue };
 
     // Find the selected query option in the query map
-    const selectedQueryOption = queryMap[table].find(q => q.label === option);
+    const selectedQueryOption = queryMap[table].find(q => q.label === optionLabel);
 
     if (selectedQueryOption.needsInput) {
         if (Array.isArray(selectedQueryOption.needsInput)) {
@@ -380,7 +380,7 @@ function search() {
         }
     }
 
-    console.log("Request: ", requestData)
+    console.log("Request: ", requestData);
 
     fetch('/api/search', {
         method: 'POST',

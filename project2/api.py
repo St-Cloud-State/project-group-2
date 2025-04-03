@@ -195,22 +195,31 @@ def search_sections():
 # Function to execute raw SQL queries
 def execute_query(query, params=None):
     conn = sqlite3.connect(DATABASE)
-    with conn.cursor() as cursor:
-        cursor.execute(query, params)
+    cursor = conn.cursor()
+    try:    
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.exectute(query)
+        
         result = cursor.fetchall()  # Fetch all results
-    return result
+        return result
+    
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
 
 # predefined query helper functions
 def search_student_by_id(value):
-    query = "SELECT * FROM students WHERE id = %s"
+    query = "SELECT * FROM students WHERE student_id = %s"
     return execute_query(query, [value])
 
 def search_student_by_city(value):
-    query = "SELECT * FROM students WHERE city = %s"
-    return execute_query(query, [value])
+    query = "SELECT * FROM students WHERE address LIKE %s"
+    return execute_query(query, ['%' + value + '%'])  # Assume 'address' field contains city info
 
 def search_student_by_zip(value):
-    query = "SELECT * FROM students WHERE zipcode = %s"
+    # Assuming the zip code is always the last 5 digits in the address
+    query = "SELECT * FROM students WHERE RIGHT(address, 5) = %s"
     return execute_query(query, [value])
 
 def search_student_by_email(value):
@@ -234,16 +243,21 @@ def search_course_by_id(value):
     return execute_query(query, [value])
 
 def search_course_by_rubric(value):
-    query = "SELECT * FROM courses WHERE course_id = %s"
-    return execute_query(query, [value])
+    print(value)
+    query = "SELECT * FROM courses WHERE course_id LIKE ?"
+    return execute_query(query, ['%' + value + '%'])
 
 def search_course_by_credit(value):
-    query = "SELECT * FROM courses WHERE credits = %s"
+    query = "SELECT * FROM courses WHERE number_credits = %s"
     return execute_query(query, [value])
 
 def search_course_by_sem_year_rub(semester, year, rubric):
-    query = "SELECT * FROM courses WHERE semester = %s AND year = %s AND rubric = %s"
-    return execute_query(query, [semester, year, rubric])
+    query = """
+    SELECT * FROM courses
+    JOIN sections ON courses.course_id = sections.course_id
+    WHERE sections.semester = %s AND sections.year = %s AND courses.course_name LIKE %s
+    """
+    return execute_query(query, [semester, year, '%' + rubric + '%'])
 
 def search_section_by_id(value):
     query = "SELECT * FROM sections WHERE section_id = %s"
@@ -264,7 +278,6 @@ def search_section_by_course(value):
 def search_section_by_instructor(value):
     query = "SELECT * FROM sections WHERE instructor LIKE %s"
     return execute_query(query, ['%' + value + '%'])
-
 
 # dictionary - maps query options to handler functions
 QUERY_HANDLERS = {
@@ -289,15 +302,38 @@ QUERY_HANDLERS = {
 @app.route('/api/search', methods=['POST'])
 def query():
     try:
-        query_type = request.POST.get('option')
+        query_type = request.json.get('optionValue')
         data = {}
-
+        print(query_type)
+        handler = QUERY_HANDLERS.get(query_type)
         if handler:
             if query_type == 'student_by_full':
+                # Handle multi-input queries like 'student_by_full' that require First Name and Last Name
                 first_name = request.POST.get('First Name')
                 last_name = request.POST.get('Last Name')
+                data['students'] = handler(first_name, last_name)
+            elif query_type == 'course_by_sem_year_rub':
+                # Handle multi-input queries like 'course_by_sem_year_rub' that require semester, year, and rubric
+                semester = request.args.get('semester')
+                year = request.args.get('year')
+                rubric = request.args.get('rubric')
+                data['courses'] = handler(semester, year, rubric)
+            else:
+                # Handle single-input queries
+                value = request.json.get('value')
+                if value:
+                    data['students'] = handler(value)
+                else:
+                    data['courses'] = handler(value)
+        else:   
+            data['error'] = 'Invalid query type'
+
+        print(data)
+        return jsonify(data)
+
 
     except Exception as e:
+        print(f"error: ", str(e))
         return jsonify({'error': str(e)}), 500    
 
     
