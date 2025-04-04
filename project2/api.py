@@ -159,7 +159,7 @@ def add_section():
 @app.route('/api/search_sections', methods=['GET'])
 def search_sections():
     try:
-        course_id = request.args.get('course_id')
+        course_id = request.json.get('course_id')
 
         if not course_id:
             return jsonify({'error': 'course_id parameter is required'}), 400
@@ -191,6 +191,141 @@ def search_sections():
         return jsonify({'error': str(e)}), 500
 
 
+
+# Function to execute SQL queries
+def execute_query(query, params=None):
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    try:    
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.exectute(query)
+        
+        result = cursor.fetchall()  # Fetch all results
+        return result
+    
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+
+# predefined query helper functions
+def search_student_by_id(value):
+    query = "SELECT * FROM students WHERE student_id = ?"
+    return execute_query(query, [value])
+
+def search_student_by_city(value):
+    query = "SELECT * FROM students WHERE address LIKE ?"
+    return execute_query(query, ['%' + value + '%'])  # Assume 'address' field contains city info
+
+def search_student_by_zip(value):
+    #zip code is always the last 5 digits in the address and always 5 digits
+    query = "SELECT * FROM students WHERE SUBSTR(address, -5) = ?"
+    return execute_query(query, [value])
+
+def search_student_by_email(value):
+    query = "SELECT * FROM students WHERE email = ?"
+    return execute_query(query, [value])
+
+def search_student_by_first(value):
+    query = "SELECT * FROM students WHERE first_name LIKE ?"
+    return execute_query(query, ['%' + value + '%'])
+
+def search_student_by_last(value):
+    query = "SELECT * FROM students WHERE last_name LIKE ?"
+    return execute_query(query, ['%' + value + '%'])
+
+def search_student_by_full(first_name, last_name):
+    query = "SELECT * FROM students WHERE first_name LIKE ? AND last_name LIKE ?"
+    return execute_query(query, ['%' + first_name + '%', '%' + last_name + '%'])
+
+def search_course_by_id(value):
+    query = "SELECT * FROM courses WHERE course_id = ?"
+    return execute_query(query, [value])
+
+def search_course_by_rubric(value):
+    value = value.upper()
+    print(value)
+    query = "SELECT * FROM courses WHERE course_id LIKE ?"
+    return execute_query(query, ['%' + value + '%'])
+
+def search_course_by_credit(value):
+    query = "SELECT * FROM courses WHERE number_credits = ?"
+    return execute_query(query, [value])
+
+def search_section_by_id(value):
+    query = "SELECT * FROM sections WHERE section_id = ?"
+    return execute_query(query, [value])
+
+def search_section_by_semester(value):
+    query = "SELECT * FROM sections WHERE semester = ?"
+    return execute_query(query, [value])
+
+def search_section_by_year(value):
+    query = "SELECT * FROM sections WHERE year = ?"
+    return execute_query(query, [value])
+
+def search_section_by_course(value):
+    query = "SELECT * FROM sections WHERE course_id = ?"
+    return execute_query(query, [value])
+
+def search_section_by_instructor(value):
+    query = "SELECT * FROM sections WHERE instructor LIKE ?"
+    return execute_query(query, ['%' + value + '%'])
+
+# dictionary - maps query options to handler functions
+QUERY_HANDLERS = {
+    'student_by_id': search_student_by_id,
+    'student_by_city': search_student_by_city,
+    'student_by_zip': search_student_by_zip,
+    'student_by_email': search_student_by_email,
+    'student_by_first': search_student_by_first,
+    'student_by_last': search_student_by_last,
+    'student_by_full': search_student_by_full,
+    'course_by_id': search_course_by_id,
+    'course_by_rubric': search_course_by_rubric,
+    'course_by_credit': search_course_by_credit,
+    'section_by_id': search_section_by_id,
+    'section_by_semester': search_section_by_semester,
+    'section_by_year': search_section_by_year,
+    'section_by_course': search_section_by_course,
+    'section_by_instructor': search_section_by_instructor,
+}
+#route for queries
+@app.route('/api/search', methods=['POST'])
+def query():
+    try:
+        query_type = request.json.get('optionValue')
+        data = {}
+        handler = QUERY_HANDLERS.get(query_type)
+        if handler:
+            if query_type == 'student_by_full':
+                
+                # Handle multi-input queries like 'student_by_full' that require First Name and Last Name
+                first_name = request.json.get('First Name')
+                last_name = request.json.get('Last Name')
+                data['students'] = handler(first_name, last_name)
+            else:
+                # Handle single-input queries
+                value = request.json.get('value')
+                data_type = query_type.split('_')[0]
+                
+                if data_type == 'student':
+                    data['students'] = handler(value)
+                elif data_type == 'course':
+                    data['courses'] = handler(value)
+                else:
+                    data['sections'] = handler(value)
+        else:   
+            data['error'] = 'Invalid query type'
+
+        return jsonify(data)
+
+
+    except Exception as e:
+        print(f"error: ", str(e))
+        return jsonify({'error': str(e)}), 500    
+
+    
 
 # Route to render the index.html page
 @app.route('/')
