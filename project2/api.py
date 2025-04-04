@@ -297,7 +297,6 @@ def query():
         query_type = request.json.get('optionValue')
         data = {}
         handler = QUERY_HANDLERS.get(query_type)
-        print(query_type)
         if handler:
             if query_type == 'student_by_full':
                 
