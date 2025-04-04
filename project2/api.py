@@ -252,14 +252,6 @@ def search_course_by_credit(value):
     query = "SELECT * FROM courses WHERE number_credits = ?"
     return execute_query(query, [value])
 
-def search_course_by_sem_year_rub(semester, year, rubric):
-    query = """
-    SELECT * FROM courses
-    JOIN sections ON courses.course_id = sections.course_id
-    WHERE sections.semester = ? AND sections.year = ? AND courses.course_name LIKE ?
-    """
-    return execute_query(query, [semester, year, '%' + rubric + '%'])
-
 def search_section_by_id(value):
     query = "SELECT * FROM sections WHERE section_id = ?"
     return execute_query(query, [value])
@@ -292,7 +284,6 @@ QUERY_HANDLERS = {
     'course_by_id': search_course_by_id,
     'course_by_rubric': search_course_by_rubric,
     'course_by_credit': search_course_by_credit,
-    'course_by_sem_year_rub': search_course_by_sem_year_rub,
     'section_by_id': search_section_by_id,
     'section_by_semester': search_section_by_semester,
     'section_by_year': search_section_by_year,
@@ -314,13 +305,6 @@ def query():
                 first_name = request.json.get('First Name')
                 last_name = request.json.get('Last Name')
                 data['students'] = handler(first_name, last_name)
-            elif query_type == 'course_by_sem_year_rub':
-                # Handle multi-input queries like 'course_by_sem_year_rub' that require semester, year, and rubric
-                semester = request.json.get('semester')
-                year = request.json.get('year')
-                rubric = request.json.get('rubric')
-                print(semester, year, rubric)
-                data['courses'] = handler(semester, year, rubric)
             else:
                 # Handle single-input queries
                 value = request.json.get('value')
@@ -335,7 +319,6 @@ def query():
         else:   
             data['error'] = 'Invalid query type'
 
-        print(jsonify(data))
         return jsonify(data)
 
 

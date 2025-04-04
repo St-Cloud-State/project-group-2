@@ -279,7 +279,6 @@ const queryMap = {
         { label: "Find Course by ID", value: "course_by_id", needsInput: true },
         { label: "List Courses with specific Rubric", value: "course_by_rubric", needsInput: true },
         { label: "List Courses with specific number of credits", value: "course_by_credit", needsInput: true },
-        { label: "List Courses with sections in a specific semester, year, and rubric", value: "course_by_sem_year_rub", needsInput: ["semester", "year", "rubric"] },
     ],
 
     sections: [
@@ -336,7 +335,7 @@ function inputFields() {
             selectedQueryOption.needsInput.forEach(field => {
                 const label = document.createElement("label");
                 label.innerText = `Enter ${field}:`;
-
+                
                 const input = document.createElement("input");
                 input.type = field === "year" ? "number" : "text";
                 input.id = field;
@@ -383,8 +382,6 @@ function search() {
             selectedQueryOption.needsInput.forEach(field => {
                 
                 requestData[field] = document.getElementById(field).value.trim();
-                console.log("this is the field aka the id: ", field);
-                console.log(requestData[field]); 
                 })    
         } else {
             // single input
