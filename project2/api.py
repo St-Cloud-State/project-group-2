@@ -306,19 +306,20 @@ def query():
         query_type = request.json.get('optionValue')
         data = {}
         handler = QUERY_HANDLERS.get(query_type)
+        print(query_type)
         if handler:
             if query_type == 'student_by_full':
                 
                 # Handle multi-input queries like 'student_by_full' that require First Name and Last Name
                 first_name = request.json.get('First Name')
                 last_name = request.json.get('Last Name')
-                print(first_name, last_name)
                 data['students'] = handler(first_name, last_name)
             elif query_type == 'course_by_sem_year_rub':
                 # Handle multi-input queries like 'course_by_sem_year_rub' that require semester, year, and rubric
                 semester = request.json.get('semester')
                 year = request.json.get('year')
                 rubric = request.json.get('rubric')
+                print(semester, year, rubric)
                 data['courses'] = handler(semester, year, rubric)
             else:
                 # Handle single-input queries

@@ -293,16 +293,16 @@ const queryMap = {
 }
 
 // Change listenter - for when a selection is changed in the dropdown
-var value = document.getElementById('queryTable').onchange = queryOptions;
-
+document.getElementById('queryTable').onchange = queryOptions;
+queryOptions.call(document.getElementById('queryTable'));
 
 // Function to update the query options dropdown
 function queryOptions() {
     const table = this.value;
     console.log(table);
 
-    var str = "";
-    console.log(queryMap[table]);
+    let str = "";
+    //console.log(queryMap[table]);
 
     queryMap[table].forEach(query => {
     
@@ -311,6 +311,7 @@ function queryOptions() {
         
     
     document.getElementById('queryOptions').innerHTML = str;
+    inputFields();
 }
 
 // Change listener
@@ -333,13 +334,14 @@ function inputFields() {
 
             // Create multiple input fields 
             selectedQueryOption.needsInput.forEach(field => {
-                var label = document.createElement("label");
+                const label = document.createElement("label");
                 label.innerText = `Enter ${field}:`;
 
-                var input = document.createElement("input");
-                input.type = field === "credits" ? "number" : "text";
+                const input = document.createElement("input");
+                input.type = field === "year" ? "number" : "text";
                 input.id = field;
                 input.placeholder = `Enter ${field}`;
+                input.required = true;
                 
                 if (field === "zipcode") {
                     input.pattern = "[0-9]{5}";
@@ -348,12 +350,14 @@ function inputFields() {
                 }
                 queryParamContainer.appendChild(label);
                 queryParamContainer.appendChild(input);
+                queryParamContainer.appendChild(document.createElement("br")); // Add spacing
+       
 
             });
         } else {
             
             // One input
-            var input = document.createElement("input");
+            const input = document.createElement("input");
             input.type = "text";
             input.id = "queryParam";
             input.placeholder = "Enter query term";
@@ -377,8 +381,11 @@ function search() {
         if (Array.isArray(selectedQueryOption.needsInput)) {
             // Get multiple input values
             selectedQueryOption.needsInput.forEach(field => {
+                
                 requestData[field] = document.getElementById(field).value.trim();
-            });
+                console.log("this is the field aka the id: ", field);
+                console.log(requestData[field]); 
+                })    
         } else {
             // single input
             requestData.value = document.getElementById('queryParam').value.trim();
@@ -400,8 +407,8 @@ function search() {
         results.innerHTML = ''; // Clear previous results
 
         // Check the response data
-        console.log(data.students[0]);
-        if(data.students[0] != '') {
+        // if the data is student data and is not empty   
+        if(data.students && data.students.length) {
             data.students.forEach(student => {
                 console.log(data.students[0]);
                 const studentElement = document.createElement('div');
@@ -414,10 +421,8 @@ function search() {
                 `;
                 results.appendChild(studentElement);
             });
-        } else if (data.courses[0] != '') {
-            console.log(data.courses[0]);
+        } else if (data.courses && data.courses.length) {
             data.courses.forEach(course => {
-                
                 const courseElement = document.createElement('div');
                 courseElement.innerHTML = `
                     <h2>${course[0]} ${course[1]}</h2>
@@ -426,7 +431,7 @@ function search() {
                 `;
                 results.appendChild(courseElement);
             });
-        } else if (data.sections[0] != '') {
+        } else if (data.sections && data.sections.length) {
             data.sections.forEach(section => {
                 const sectionElement = document.createElement('div');
                 sectionElement.innerHTML = `
