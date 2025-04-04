@@ -11,7 +11,7 @@
     <!--Add student form-->
     <div id="addStudent">
         <h2>Add a Student</h2>
-        <form id = "studentForm" onsubmit="addStudent()">
+        <form id = "studentForm">
             <label for="firstName">First Name:</label>
             <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
             <br><br>
@@ -58,7 +58,7 @@
 
     <div id="addCourse">
         <h2>Add a Course</h2>
-        <form id = "courseForm" onsubmit="addCourse()">
+        <form id = "courseForm">
             <label for="rubric">Rubric:</label>
             <input type="text" id="rubric" name="rubric" placeholder="eg. MATH, CSCI etc." title="Enter a valid course rubric" required>
             <br><br>
@@ -82,11 +82,14 @@
             <button type="submit">Add Course</button>
         </form>
     </div>
+        <!-- Display courses in this div -->
+        <div id="courseList">
+            <!-- course data will be displayed here dynamically -->
+    </div>
 
     <div id = "addSection">
         <h2>Add a section</h2>
-        <form id = "sectionForm" onsubmit="addSection()">
-
+        <form id = "sectionForm">
 
             <label for="course_ID">Course ID:</label>
             <input type="text" id = "course_ID" name = "course_ID" placeholder="MATH221" title="Enter the course ID" required>
@@ -110,9 +113,9 @@
 
     </div>
     </div>
-    <!-- Display courses in this div -->
-    <div id="courseList">
-        <!-- course data will be displayed here dynamically -->
+    <!-- Display sections in this div -->
+    <div id="sectionList">
+        <!-- section data will be displayed here dynamically -->
     </div>
     
     
@@ -132,7 +135,7 @@
     <button onclick="searchSections()">Search</button>
 
     <!-- Section list will be displayed here -->
-    <div id="sectionList"></div>
+    <div id="sectionList2"></div>
 
     <h2>Perform Queries</h2>
     <div id="queries">

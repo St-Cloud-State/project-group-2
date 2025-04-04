@@ -159,14 +159,18 @@ def add_section():
 @app.route('/api/search_sections', methods=['GET'])
 def search_sections():
     try:
-        course_id = request.json.get('course_id')
+        course_id = request.args.get('course_id')
 
         if not course_id:
             return jsonify({'error': 'course_id parameter is required'}), 400
 
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM sections WHERE course_id = ?", (course_id,))
+        cursor.execute("""
+                       SELECT sections.*, courses.course_name
+                       FROM sections
+                       JOIN courses ON sections.course_id = courses.course_id
+                       WHERE sections.course_id = ? """, (course_id,))
         sections = cursor.fetchall()
         conn.close()
 
@@ -182,12 +186,14 @@ def search_sections():
                 'semester': section[2],
                 'year': section[3],
                 'instructor': section[4],
+                'course_name': section[5]
             }
             section_list.append(section_dict)
 
         return jsonify({'sections': section_list})
 
     except Exception as e:
+        print({'error': str(e)})
         return jsonify({'error': str(e)}), 500
 
 
@@ -253,23 +259,48 @@ def search_course_by_credit(value):
     return execute_query(query, [value])
 
 def search_section_by_id(value):
-    query = "SELECT * FROM sections WHERE section_id = ?"
+    query = """
+        SELECT sections.*, courses.course_name
+        FROM sections
+        JOIN courses ON sections.course_id = courses.course_id
+        WHERE sections.section_id = ?
+    """
     return execute_query(query, [value])
 
 def search_section_by_semester(value):
-    query = "SELECT * FROM sections WHERE semester = ?"
+    query = """
+        SELECT sections.*, courses.course_name
+        FROM sections
+        JOIN courses ON sections.course_id = courses.course_id
+        WHERE sections.semester = ?
+    """
     return execute_query(query, [value])
 
 def search_section_by_year(value):
-    query = "SELECT * FROM sections WHERE year = ?"
+    query = """
+        SELECT sections.*, courses.course_name
+        FROM sections
+        JOIN courses ON sections.course_id = courses.course_id
+        WHERE sections.year = ?
+    """
     return execute_query(query, [value])
 
 def search_section_by_course(value):
-    query = "SELECT * FROM sections WHERE course_id = ?"
+    query = """
+        SELECT sections.*, courses.course_name
+        FROM sections
+        JOIN courses ON sections.course_id = courses.course_id
+        WHERE sections.course_id = ?
+    """
     return execute_query(query, [value])
 
 def search_section_by_instructor(value):
-    query = "SELECT * FROM sections WHERE instructor LIKE ?"
+    query = """
+        SELECT sections.*, courses.course_name
+        FROM sections
+        JOIN courses ON sections.course_id = courses.course_id
+        WHERE instructor LIKE ?
+    """
     return execute_query(query, ['%' + value + '%'])
 
 # dictionary - maps query options to handler functions
@@ -318,6 +349,7 @@ def query():
         else:   
             data['error'] = 'Invalid query type'
 
+        print(data)
         return jsonify(data)
 
 

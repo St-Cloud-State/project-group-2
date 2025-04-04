@@ -31,6 +31,19 @@ function displayCourses() {
     })
 }
 
+// Function to display sections in the list
+function displaySections() {
+    const courseList = document.getElementById('sectionList');
+    sectionList.innerHTML = ''; // Clear existing section list
+
+    sections.forEach(section => {
+        const sectionElement = document.createElement('div');
+        sectionElement.innerHTML = `
+            <h2>Added Successfully: Course ID: ${section.course_id}  Semester: ${section.semester} ${section.year}</h2>
+        `;
+        courseList.appendChild(sectionElement);
+    })
+}
 
 // Add Student
 function addStudent(event) {
@@ -168,7 +181,7 @@ function addSection(event){
             console.log(sections)
             document.getElementById('sectionForm').reset();
 
-            //Add display sections!!!!!!!!!!!!!!!!!!
+            displaySections();
         })
 
 }
@@ -227,7 +240,6 @@ function showAllCourses() {
 // Function to search for course sections
 function searchSections() {
     const courseID = document.getElementById('searchCourseID').value.trim();
-
     if (!courseID) {
         alert("Please enter a Course ID.");
         return;
@@ -236,14 +248,15 @@ function searchSections() {
     fetch(`/api/search_sections?course_id=${courseID}`)
         .then(response => response.json())
         .then(data => {
-            const sectionList = document.getElementById('sectionList');
+            const sectionList = document.getElementById('sectionList2');
             sectionList.innerHTML = ''; // Clear previous results
 
             if (data.sections && data.sections.length > 0) {
                 data.sections.forEach(section => {
                     const sectionElement = document.createElement('div');
                     sectionElement.innerHTML = `
-                        <h3>Section ID: ${section.section_id}</h3>
+                    <h2>${section.course_name}</h2>   
+                    <h3>Section ID: ${section.section_id}</h3>
                         <p>Course ID: ${section.course_id}</p>
                         <p>Semester: ${section.semester}</p>
                         <p>Year: ${section.year}</p>
@@ -429,14 +442,16 @@ function search() {
                 results.appendChild(courseElement);
             });
         } else if (data.sections && data.sections.length) {
+            
             data.sections.forEach(section => {
                 const sectionElement = document.createElement('div');
                 sectionElement.innerHTML = `
+                <h2>${section[5]}</h2>    
                     <h3>Section ID: ${section[0]}</h3>
-                    <p>Course ID: ${section[1]}</p>
-                    <p>Semester: ${section[2]}</p>
-                    <p>Year: ${section[3]}</p>
-                    <p>Instructor: ${section[4]}</p>
+                        <p>Course ID: ${section[1]}</p>
+                        <p>Semester: ${section[2]}</p>
+                        <p>Year: ${section[3]}</p>
+                        <p>Instructor: ${section[4]}</p>
             `;
             results.appendChild(sectionElement);
         });
