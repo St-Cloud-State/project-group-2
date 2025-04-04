@@ -340,7 +340,12 @@ function inputFields() {
                 input.type = field === "credits" ? "number" : "text";
                 input.id = field;
                 input.placeholder = `Enter ${field}`;
-
+                
+                if (field === "zipcode") {
+                    input.pattern = "[0-9]{5}";
+                    input.title = "Enter a valid 5-digit zipcode";
+                    input.required = true;
+                }
                 queryParamContainer.appendChild(label);
                 queryParamContainer.appendChild(input);
 
@@ -395,36 +400,43 @@ function search() {
         results.innerHTML = ''; // Clear previous results
 
         // Check the response data
-        if(data.students) {
+        console.log(data.students[0]);
+        if(data.students[0] != '') {
             data.students.forEach(student => {
+                console.log(data.students[0]);
                 const studentElement = document.createElement('div');
                 studentElement.innerHTML = `
-                    <h2>${student.first_name} ${student.last_name}</h2>
-                    <p>Student ID: ${student.student_id}</p>
-                    <p>DOB: ${student.date_of_birth}</p>
-                    <p>Email: ${student.email}</p>
-                    <p>Adress: ${student.adress}</p>
+                    <h2>${student[1]} ${student[2]}</h2>
+                    <p>Student ID: ${student[0]}</p>
+                    <p>DOB: ${student[3]}</p>
+                    <p>Email: ${student[4]}</p>
+                    <p>Adress: ${student[5]}</p>
                 `;
+                results.appendChild(studentElement);
             });
-        } else if (data.courses) {
+        } else if (data.courses[0] != '') {
+            console.log(data.courses[0]);
             data.courses.forEach(course => {
+                
                 const courseElement = document.createElement('div');
                 courseElement.innerHTML = `
-                    <h2>${course.course_id} ${course.course_name}</h2>
-                    <p>Course Description: ${course.description}</p>
-                    <p>Credits: ${course.number_credits}</p>
+                    <h2>${course[0]} ${course[1]}</h2>
+                    <p>Course Description: ${course[2]}</p>
+                    <p>Credits: ${course[3]}</p>
                 `;
+                results.appendChild(courseElement);
             });
-        } else if (data.sections) {
+        } else if (data.sections[0] != '') {
             data.sections.forEach(section => {
                 const sectionElement = document.createElement('div');
                 sectionElement.innerHTML = `
-                    <h3>Section ID: ${section.section_id}</h3>
-                    <p>Course ID: ${section.course_id}</p>
-                    <p>Semester: ${section.semester}</p>
-                    <p>Year: ${section.year}</p>
-                    <p>Instructor: ${section.instructor}</p>
+                    <h3>Section ID: ${section[0]}</h3>
+                    <p>Course ID: ${section[1]}</p>
+                    <p>Semester: ${section[2]}</p>
+                    <p>Year: ${section[3]}</p>
+                    <p>Instructor: ${section[4]}</p>
             `;
+            results.appendChild(sectionElement);
         });
         } else {
             // no data found

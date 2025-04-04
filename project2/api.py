@@ -159,7 +159,7 @@ def add_section():
 @app.route('/api/search_sections', methods=['GET'])
 def search_sections():
     try:
-        course_id = request.args.get('course_id')
+        course_id = request.json.get('course_id')
 
         if not course_id:
             return jsonify({'error': 'course_id parameter is required'}), 400
@@ -192,7 +192,7 @@ def search_sections():
 
 
 
-# Function to execute raw SQL queries
+# Function to execute SQL queries
 def execute_query(query, params=None):
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
@@ -210,73 +210,74 @@ def execute_query(query, params=None):
 
 # predefined query helper functions
 def search_student_by_id(value):
-    query = "SELECT * FROM students WHERE student_id = %s"
+    query = "SELECT * FROM students WHERE student_id = ?"
     return execute_query(query, [value])
 
 def search_student_by_city(value):
-    query = "SELECT * FROM students WHERE address LIKE %s"
+    query = "SELECT * FROM students WHERE address LIKE ?"
     return execute_query(query, ['%' + value + '%'])  # Assume 'address' field contains city info
 
 def search_student_by_zip(value):
-    # Assuming the zip code is always the last 5 digits in the address
-    query = "SELECT * FROM students WHERE RIGHT(address, 5) = %s"
+    #zip code is always the last 5 digits in the address and always 5 digits
+    query = "SELECT * FROM students WHERE SUBSTR(address, -5) = ?"
     return execute_query(query, [value])
 
 def search_student_by_email(value):
-    query = "SELECT * FROM students WHERE email = %s"
+    query = "SELECT * FROM students WHERE email = ?"
     return execute_query(query, [value])
 
 def search_student_by_first(value):
-    query = "SELECT * FROM students WHERE first_name LIKE %s"
+    query = "SELECT * FROM students WHERE first_name LIKE ?"
     return execute_query(query, ['%' + value + '%'])
 
 def search_student_by_last(value):
-    query = "SELECT * FROM students WHERE last_name LIKE %s"
+    query = "SELECT * FROM students WHERE last_name LIKE ?"
     return execute_query(query, ['%' + value + '%'])
 
 def search_student_by_full(first_name, last_name):
-    query = "SELECT * FROM students WHERE first_name LIKE %s AND last_name LIKE %s"
+    query = "SELECT * FROM students WHERE first_name LIKE ? AND last_name LIKE ?"
     return execute_query(query, ['%' + first_name + '%', '%' + last_name + '%'])
 
 def search_course_by_id(value):
-    query = "SELECT * FROM courses WHERE course_id = %s"
+    query = "SELECT * FROM courses WHERE course_id = ?"
     return execute_query(query, [value])
 
 def search_course_by_rubric(value):
+    value = value.upper()
     print(value)
     query = "SELECT * FROM courses WHERE course_id LIKE ?"
     return execute_query(query, ['%' + value + '%'])
 
 def search_course_by_credit(value):
-    query = "SELECT * FROM courses WHERE number_credits = %s"
+    query = "SELECT * FROM courses WHERE number_credits = ?"
     return execute_query(query, [value])
 
 def search_course_by_sem_year_rub(semester, year, rubric):
     query = """
     SELECT * FROM courses
     JOIN sections ON courses.course_id = sections.course_id
-    WHERE sections.semester = %s AND sections.year = %s AND courses.course_name LIKE %s
+    WHERE sections.semester = ? AND sections.year = ? AND courses.course_name LIKE ?
     """
     return execute_query(query, [semester, year, '%' + rubric + '%'])
 
 def search_section_by_id(value):
-    query = "SELECT * FROM sections WHERE section_id = %s"
+    query = "SELECT * FROM sections WHERE section_id = ?"
     return execute_query(query, [value])
 
 def search_section_by_semester(value):
-    query = "SELECT * FROM sections WHERE semester = %s"
+    query = "SELECT * FROM sections WHERE semester = ?"
     return execute_query(query, [value])
 
 def search_section_by_year(value):
-    query = "SELECT * FROM sections WHERE year = %s"
+    query = "SELECT * FROM sections WHERE year = ?"
     return execute_query(query, [value])
 
 def search_section_by_course(value):
-    query = "SELECT * FROM sections WHERE course_id = %s"
+    query = "SELECT * FROM sections WHERE course_id = ?"
     return execute_query(query, [value])
 
 def search_section_by_instructor(value):
-    query = "SELECT * FROM sections WHERE instructor LIKE %s"
+    query = "SELECT * FROM sections WHERE instructor LIKE ?"
     return execute_query(query, ['%' + value + '%'])
 
 # dictionary - maps query options to handler functions
@@ -304,31 +305,36 @@ def query():
     try:
         query_type = request.json.get('optionValue')
         data = {}
-        print(query_type)
         handler = QUERY_HANDLERS.get(query_type)
         if handler:
             if query_type == 'student_by_full':
+                
                 # Handle multi-input queries like 'student_by_full' that require First Name and Last Name
-                first_name = request.POST.get('First Name')
-                last_name = request.POST.get('Last Name')
+                first_name = request.json.get('First Name')
+                last_name = request.json.get('Last Name')
+                print(first_name, last_name)
                 data['students'] = handler(first_name, last_name)
             elif query_type == 'course_by_sem_year_rub':
                 # Handle multi-input queries like 'course_by_sem_year_rub' that require semester, year, and rubric
-                semester = request.args.get('semester')
-                year = request.args.get('year')
-                rubric = request.args.get('rubric')
+                semester = request.json.get('semester')
+                year = request.json.get('year')
+                rubric = request.json.get('rubric')
                 data['courses'] = handler(semester, year, rubric)
             else:
                 # Handle single-input queries
                 value = request.json.get('value')
-                if value:
+                data_type = query_type.split('_')[0]
+                
+                if data_type == 'student':
                     data['students'] = handler(value)
-                else:
+                elif data_type == 'course':
                     data['courses'] = handler(value)
+                else:
+                    data['sections'] = handler(value)
         else:   
             data['error'] = 'Invalid query type'
 
-        print(data)
+        print(jsonify(data))
         return jsonify(data)
 
 
