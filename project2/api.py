@@ -75,13 +75,28 @@ def add_student():
         address = data.get('address')
         phone = data.get('phone')
 
-        cursor.execute("""
-        INSERT INTO students (first_name, last_name, date_of_birth, email, address, phone) VALUES (?, ?, ?, ?, ?, ?)
-                       """,(first_name, last_name, dob, email, address, phone))
-        conn.commit()
-        conn.close()
+        cursor.execute("SELECT 1 from students WHERE first_name = ?", (first_name,))
+        firstNameExists = cursor.fetchone() is not None
 
-        return jsonify({'message': 'Student Added Successfully'}), 200
+        cursor.execute("SELECT 1 from students WHERE last_name = ?", (last_name,))
+        lastNameExists = cursor.fetchone() is not None
+
+        cursor.execute("SELECT 1 from students WHERE date_of_birth = ?", (dob,))
+        birthdayExists = cursor.fetchone() is not None
+
+        #Checks if a person with the same name and birthday already exists
+        if firstNameExists and lastNameExists and birthdayExists:
+            conn.commit()
+            conn.close()
+            return jsonify({'message': 'This student already exists'}), 400
+        else:
+            cursor.execute("""
+            INSERT INTO students (first_name, last_name, date_of_birth, email, address, phone) VALUES (?, ?, ?, ?, ?, ?)
+                        """,(first_name, last_name, dob, email, address, phone))
+            conn.commit()
+            conn.close()
+
+            return jsonify({'message': 'Student Added Successfully'}), 200
 
     except Exception as e:
         print(f"Error: {str(e)}") 
@@ -101,14 +116,28 @@ def add_course():
         course_description = data.get('course_description')
         number_credits = data.get('number_credits')
 
-        cursor.execute("""
-        INSERT INTO courses (course_id, course_name, course_description, number_credits) VALUES (?, ?, ?, ?)
-                        """,(course_id, course_name, course_description, number_credits))
-        
-        conn.commit()
-        conn.close()
 
-        return jsonify({'message': 'Course Added Successfully'}), 200
+
+        cursor.execute("SELECT 1 FROM courses WHERE course_id = ?", (course_id,))
+        exists = cursor.fetchone() is None
+
+        #Checks if the course already exists
+        if exists:
+            cursor.execute("""
+            INSERT INTO courses (course_id, course_name, course_description, number_credits) VALUES (?, ?, ?, ?)
+                            """,(course_id, course_name, course_description, number_credits))
+            
+            conn.commit()
+            conn.close()
+            return jsonify({'message': 'Course Added Successfully'}), 200
+        else:
+            conn.commit()
+            conn.close()
+
+            return jsonify({'message': 'This course already exists'}), 400
+
+
+        
     
     except Exception as e:
         print(f"Error: {str(e)}")
@@ -166,11 +195,7 @@ def search_sections():
 
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        cursor.execute("""
-                       SELECT sections.*, courses.course_name
-                       FROM sections
-                       JOIN courses ON sections.course_id = courses.course_id
-                       WHERE sections.course_id = ? """, (course_id,))
+        cursor.execute("SELECT * FROM sections WHERE course_id = ?", (course_id,))
         sections = cursor.fetchall()
         conn.close()
 
@@ -186,17 +211,13 @@ def search_sections():
                 'semester': section[2],
                 'year': section[3],
                 'instructor': section[4],
-                'course_name': section[5]
             }
             section_list.append(section_dict)
 
         return jsonify({'sections': section_list})
 
     except Exception as e:
-        print({'error': str(e)})
         return jsonify({'error': str(e)}), 500
-
-
 
 # Function to execute SQL queries
 def execute_query(query, params=None):
@@ -355,9 +376,8 @@ def query():
 
     except Exception as e:
         print(f"error: ", str(e))
-        return jsonify({'error': str(e)}), 500    
+        return jsonify({'error': str(e)}), 500 
 
-    
 
 # Route to render the index.html page
 @app.route('/')

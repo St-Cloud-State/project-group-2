@@ -31,19 +31,20 @@ function displayCourses() {
     })
 }
 
-// Function to display sections in the list
-function displaySections() {
-    const courseList = document.getElementById('sectionList');
-    sectionList.innerHTML = ''; // Clear existing section list
+//Function to display sections as they are added
+function displaySections(){
+    const sectionList = document.getElementById('sectionList');
+    sectionList.innerHTML = ''; //Clear existing section list
 
-    sections.forEach(section => {
+    sections.forEach(section =>{
         const sectionElement = document.createElement('div');
         sectionElement.innerHTML = `
-            <h2>Added Successfully: Course ID: ${section.course_id}  Semester: ${section.semester} ${section.year}</h2>
+        <h2>Section for ${section.course_id} added successfully</h2>
         `;
-        courseList.appendChild(sectionElement);
+        sectionList.appendChild(sectionElement);
     })
 }
+
 
 // Add Student
 function addStudent(event) {
@@ -81,7 +82,15 @@ function addStudent(event) {
         body: JSON.stringify(studentData)
     })
 
-        .then(response => response.json())
+        .then(response => {
+            if(!response.ok){
+                return response.json().then(data => {
+                    throw new Error(data.message);
+                })
+            }
+            
+            return response.json;
+        })
         .then(data => {
             // Display a success message or handle errors if needed
             console.log(data.message);
@@ -98,6 +107,7 @@ function addStudent(event) {
     })
     .catch(error => {
         console.error('Error adding student:', error);
+        alert(error.message);
     });
 }
 // Attach the addStudent function to the form submit event
@@ -132,7 +142,14 @@ function addCourse(event) {
         body: JSON.stringify(courseData)
     })
 
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok){
+            return response.json().then(data => {
+                throw new Error(data.message);
+            })
+        }
+        return response.json;
+    })
     .then(data => {
 
         console.log(data.message);
@@ -146,6 +163,7 @@ function addCourse(event) {
     })
     .catch(error => {
         console.error('Error adding course', error);
+        alert(error.message);
     });
 }
 
@@ -173,17 +191,29 @@ function addSection(event){
         body: JSON.stringify(sectionData)
     })
 
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok){
+                return response.json().then(data =>{
+                    throw new Error(data.message);
+                })
+            }
+            return response.json;
+                //throw new Error(data.message);
+        })
         .then(data => {
             console.log(data.message);
 
             sections.push(sectionData);
             console.log(sections)
             document.getElementById('sectionForm').reset();
-
+            
             displaySections();
+            
         })
-
+        .catch(error => {
+            console.error('Error adding sections:', error);
+            alert(error.message);
+        });
 }
 
 document.getElementById('sectionForm').addEventListener('submit', addSection);
@@ -240,6 +270,7 @@ function showAllCourses() {
 // Function to search for course sections
 function searchSections() {
     const courseID = document.getElementById('searchCourseID').value.trim();
+
     if (!courseID) {
         alert("Please enter a Course ID.");
         return;
@@ -248,15 +279,14 @@ function searchSections() {
     fetch(`/api/search_sections?course_id=${courseID}`)
         .then(response => response.json())
         .then(data => {
-            const sectionList = document.getElementById('sectionList2');
+            const sectionList = document.getElementById('sectionList');
             sectionList.innerHTML = ''; // Clear previous results
 
             if (data.sections && data.sections.length > 0) {
                 data.sections.forEach(section => {
                     const sectionElement = document.createElement('div');
                     sectionElement.innerHTML = `
-                    <h2>${section.course_name}</h2>   
-                    <h3>Section ID: ${section.section_id}</h3>
+                        <h3>Section ID: ${section.section_id}</h3>
                         <p>Course ID: ${section.course_id}</p>
                         <p>Semester: ${section.semester}</p>
                         <p>Year: ${section.year}</p>
@@ -274,7 +304,6 @@ function searchSections() {
             alert('An error occurred while searching for sections.');
         });
 }
-
 
 // Map of predefined query options
 const queryMap = {
@@ -465,4 +494,3 @@ function search() {
         alert('An error occurred while searching for data.');
         });
 }
-

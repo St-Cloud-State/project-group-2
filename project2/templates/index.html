@@ -11,7 +11,7 @@
     <!--Add student form-->
     <div id="addStudent">
         <h2>Add a Student</h2>
-        <form id = "studentForm">
+        <form id = "studentForm" onsubmit="addStudent()">
             <label for="firstName">First Name:</label>
             <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
             <br><br>
@@ -58,13 +58,13 @@
 
     <div id="addCourse">
         <h2>Add a Course</h2>
-        <form id = "courseForm">
+        <form id = "courseForm" onsubmit="addCourse()">
             <label for="rubric">Rubric:</label>
-            <input type="text" id="rubric" name="rubric" placeholder="eg. MATH, CSCI etc." title="Enter a valid course rubric" required>
+            <input type="text" id="rubric" name="rubric" placeholder="eg. MATH, CSCI etc." pattern="[A-Z]{3,4}" title="Enter a valid course rubric" required>
             <br><br>
 
             <label for="course_number">Course Number:</label>
-            <input type="text" id="course_number" name="course_number" placeholder="1400" title="Enter a valid course number" required>
+            <input type="text" id="course_number" name="course_number" placeholder="1400" pattern="[0-9]{3,4}"title="Enter a valid course number" required>
             <br><br>
 
             <label for="course_name">Course Name:</label>
@@ -85,14 +85,15 @@
         <!-- Display courses in this div -->
         <div id="courseList">
             <!-- course data will be displayed here dynamically -->
-    </div>
+        </div>
 
     <div id = "addSection">
         <h2>Add a section</h2>
-        <form id = "sectionForm">
+        <form id = "sectionForm" onsubmit="addSection()">
+
 
             <label for="course_ID">Course ID:</label>
-            <input type="text" id = "course_ID" name = "course_ID" placeholder="MATH221" title="Enter the course ID" required>
+            <input type="text" id = "course_ID" name = "course_ID" placeholder="MATH221" pattern="[A-Z]{3,4}[0-9]{3,4}" title="Enter the course ID (e.g. MATH221, CS101)" required>
             <br><br>
 
             <label for="semester">Semester:</label>
@@ -100,11 +101,11 @@
             <br><br>
 
             <label for="year">Year:</label>
-            <input type="number" id="year" name="year" placeholder="2025" title="Enter the year" required>
+            <input type="number" id="year" name="year" placeholder="2025" pattern="\d{4}" title="Enter the year" required>
             <br><br>
 
             <label for="instructor">Instructor:</label>
-            <input type="text" id="instructor" name="instructor" placeholder="Dr. Petzold" title="Enter the instructor's name" required>
+            <input type="text" id="instructor" name="instructor" placeholder="Walter White" title="Enter the instructor's name" required>
             <br><br>
 
             <button type="submit">Add Section</button>
@@ -112,11 +113,13 @@
 
 
     </div>
+
+    <!-- Display successfuly added sections-->
+     <div id="sectionList"></div>
+
+
     </div>
-    <!-- Display sections in this div -->
-    <div id="sectionList">
-        <!-- section data will be displayed here dynamically -->
-    </div>
+
     
     
 
@@ -135,7 +138,7 @@
     <button onclick="searchSections()">Search</button>
 
     <!-- Section list will be displayed here -->
-    <div id="sectionList2"></div>
+    <div id="sectionList"></div>
 
     <h2>Perform Queries</h2>
     <div id="queries">
