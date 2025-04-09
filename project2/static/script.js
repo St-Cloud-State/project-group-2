@@ -279,7 +279,7 @@ function searchSections() {
     fetch(`/api/search_sections?course_id=${courseID}`)
         .then(response => response.json())
         .then(data => {
-            const sectionList = document.getElementById('sectionList');
+            const sectionList = document.getElementById('sectionList2');
             sectionList.innerHTML = ''; // Clear previous results
 
             if (data.sections && data.sections.length > 0) {
