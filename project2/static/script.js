@@ -225,9 +225,8 @@ function registerStudent(event){
 
     //Registration Object
     const registrationData = {
-        section_ID: formData.get('section_ID'),
-        student_ID: formData.get('student_ID'),
-        grade:  formData.get('grade')
+        section_ID: document.getElementById('section_ID').value,
+        student_ID: formData.get('student_ID')
     };
 
     fetch('/api/registerStudent',{
@@ -237,20 +236,11 @@ function registerStudent(event){
 
     })
 
-    .then(response => {
-        if (!response.ok){
-            return response.json().then(data =>{
-                throw new Error(data.message);
-            })
-        }
-        return response.json();
-            
-    })
-
+    .then(response =>response.json()) 
     .then(data =>{
         console.log(data.message);
         //Sends the alert message upon success
-        throw new Error(data.message);
+        alert(data.message);
     })
     .catch(error =>{
         console.error('Error registering student', error);
@@ -535,4 +525,52 @@ function search() {
         console.error('Error fetching data:', error);
         alert('An error occurred while searching for data.');
         });
+}
+
+
+// Put the list of courses in the drop down
+document.getElementById('register_course_id').onchange = sectionDropDown;
+courseDropDown.call(document.getElementById('register_course_id'));
+
+function courseDropDown() {
+    fetch('api/courses')
+        .then(response => response.json())
+        .then(data => {
+            let str = "<option>>-- Select a Course --<</option>";
+            data.courses.forEach(course => {
+                str += "<option>" + course.course_id + "</option>"
+            });
+
+            document.getElementById('register_course_id').innerHTML = str;
+        })
+        .catch(error => console.error("Error fetching courses", error));
+        sectionDropDown();
+}
+
+
+// Put the sections of the selected course in the drop down
+function sectionDropDown() {
+    const courseId = document.getElementById('register_course_id').value;
+    fetch(`api/search_sections?course_id=${courseId}`)
+        .then(response => response.json())
+        .then(data => {
+            let str = "";
+            console.log('this is courseId', courseId);
+            console.log('this is data', data);
+            console.log('this is data.sections', data.sections);
+            
+            if (data.sections && data.sections.length) {
+                data.sections.forEach(section => {
+                    str += "<option>" + section.section_id + " - " + section.semester + " - " + section.year + "</option>"
+                });
+            }
+            else {
+                str += "<option>No Sections Available For This Course</option>";
+            }
+            
+
+            document.getElementById('section_ID').innerHTML = str;
+        })
+        .catch(error => console.error("Error fetching sections", error));
+
 }

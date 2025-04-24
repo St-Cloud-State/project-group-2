@@ -42,7 +42,7 @@ def get_all_courses():
     try:
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM courses")
+        cursor.execute("SELECT * FROM courses ORDER BY course_id")
         courses = cursor.fetchall()
         conn.close()
 
@@ -190,43 +190,45 @@ def registerStudent():
     
         data = request.get_json()
 
-        section_id = data.get('section_ID')
+        # parse the section id from the section info
+        section_info = data.get('section_ID')
+        section_id = section_info.split(" ")[0]
+
         student_id = data.get('student_ID')
         current_date = datetime.now().strftime("%m-%d-%Y")
-        grade = data.get('grade')
+
+        # Grade is set to Z upon registration indication 'in progress'
+        grade = 'Z'
         
         
         with sqlite3.connect(DATABASE) as conn:
             cursor = conn.cursor()
 
-            #checking if the section exists
+            #checking if the student exists
             cursor.execute("SELECT 1 FROM students WHERE student_id = ?", (student_id,))
             studentExists = cursor.fetchone() is not None
 
-            cursor.execute("SELECT 1 FROM sections WHERE section_id = ?", (section_id,))
-            sectionExists = cursor.fetchone() is not None
+            # check if student is already registered for the section
+            cursor.execute("SELECT * FROM registrations WHERE student_id = ? AND section_id = ?", (student_id, section_id))
+            already_registered = cursor.fetchone()
 
-            #Returns an error if the student or section does not exist
-            if not studentExists or not sectionExists:
-                return jsonify({'message': 'The student or section does not exist'}), 400
+            #Returns an error if the student does not exist
+            if not studentExists:
+                return jsonify({'message': 'The student does not exist'}), 400
+            
+            # Return already registered message
+            if already_registered:
+                return jsonify({'message': 'The student is already registered for this section'}), 201
             
             
             cursor.execute("INSERT INTO registrations (student_id, section_id, date, grade) VALUES (?, ?, ?, ?)",(student_id, section_id, current_date, grade))
             conn.commit()
             
-
             return jsonify({'message': 'Student registered successfully'}), 200
         
     except Exception as e:
             print(f"Error: {str(e)}")
             return jsonify({'error': str(e)}), 500
-
-
-
-
-
-
-
 
 
 # Search Sections by Course ID
