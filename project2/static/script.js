@@ -218,6 +218,48 @@ function addSection(event){
 
 document.getElementById('sectionForm').addEventListener('submit', addSection);
 
+//Register a student to a course
+function registerStudent(event){
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('registerForm'));
+
+    //Registration Object
+    const registrationData = {
+        section_ID: formData.get('section_ID'),
+        student_ID: formData.get('student_ID'),
+        grade:  formData.get('grade')
+    };
+
+    fetch('/api/registerStudent',{
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(registrationData)
+
+    })
+
+    .then(response => {
+        if (!response.ok){
+            return response.json().then(data =>{
+                throw new Error(data.message);
+            })
+        }
+        return response.json();
+            
+    })
+
+    .then(data =>{
+        console.log(data.message);
+        //Sends the alert message upon success
+        throw new Error(data.message);
+    })
+    .catch(error =>{
+        console.error('Error registering student', error);
+        alert(error.message);
+    });
+    
+}
+document.getElementById('registerForm').addEventListener('submit', registerStudent);
+
 // Function to fetch and display all students from the server
 function showAllStudents() {
     fetch('/api/students')
@@ -279,7 +321,7 @@ function searchSections() {
     fetch(`/api/search_sections?course_id=${courseID}`)
         .then(response => response.json())
         .then(data => {
-            const sectionList = document.getElementById('sectionList2');
+            const sectionList = document.getElementById('sectionList');
             sectionList.innerHTML = ''; // Clear previous results
 
             if (data.sections && data.sections.length > 0) {

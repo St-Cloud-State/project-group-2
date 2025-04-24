@@ -11,7 +11,7 @@
     <!--Add student form-->
     <div id="addStudent">
         <h2>Add a Student</h2>
-        <form id = "studentForm">
+        <form id = "studentForm" onsubmit="addStudent()">
             <label for="firstName">First Name:</label>
             <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
             <br><br>
@@ -58,7 +58,7 @@
 
     <div id="addCourse">
         <h2>Add a Course</h2>
-        <form id = "courseForm" onsubmit=>
+        <form id = "courseForm" onsubmit="addCourse()">
             <label for="rubric">Rubric:</label>
             <input type="text" id="rubric" name="rubric" placeholder="eg. MATH, CSCI etc." pattern="[A-Z]{3,4}" title="Enter a valid course rubric" required>
             <br><br>
@@ -89,7 +89,7 @@
 
     <div id = "addSection">
         <h2>Add a section</h2>
-        <form id = "sectionForm">
+        <form id = "sectionForm" onsubmit="addSection()">
 
 
             <label for="course_ID">Course ID:</label>
@@ -120,6 +120,23 @@
 
     </div>
 
+    <div id="registerStudent">
+        <h2>Register a student to a section</h2>
+        <form id="registerForm">
+            <label for="section_ID">Section ID:</label>
+            <input type="text" id ="section_ID" name="section_ID"><br>
+
+            <label for="student_ID">Student ID:</label>
+            <input type="text" id="student_ID" name="student_ID"><br>
+
+            <label for="grade">Grade:</label>
+            <input type="text" id="grade" name="grade"><br>
+
+            <button type="submit">Register Student</button>
+        </form>
+
+
+    </div>
     
     
 
@@ -138,7 +155,7 @@
     <button onclick="searchSections()">Search</button>
 
     <!-- Section list will be displayed here -->
-    <div id="sectionList2"></div>
+    <div id="sectionList"></div>
 
     <h2>Perform Queries</h2>
     <div id="queries">

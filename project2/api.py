@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, render_template, request
+from datetime import datetime
 import sqlite3
 
 app = Flask(__name__)
@@ -182,6 +183,50 @@ def add_section():
          print(f"Error: {str(e)}")
          return jsonify({'error': str(e)}), 500
     
+#Register a student to a section
+@app.route('/api/registerStudent', methods=['POST'])
+def registerStudent():
+    try:
+    
+        data = request.get_json()
+
+        section_id = data.get('section_ID')
+        student_id = data.get('student_ID')
+        current_date = datetime.now().strftime("%m-%d-%Y")
+        grade = data.get('grade')
+        
+        
+        with sqlite3.connect(DATABASE) as conn:
+            cursor = conn.cursor()
+
+            #checking if the section exists
+            cursor.execute("SELECT 1 FROM students WHERE student_id = ?", (student_id,))
+            studentExists = cursor.fetchone() is not None
+
+            cursor.execute("SELECT 1 FROM sections WHERE section_id = ?", (section_id,))
+            sectionExists = cursor.fetchone() is not None
+
+            #Returns an error if the student or section does not exist
+            if not studentExists or not sectionExists:
+                return jsonify({'message': 'The student or section does not exist'}), 400
+            
+            
+            cursor.execute("INSERT INTO registrations (student_id, section_id, date, grade) VALUES (?, ?, ?, ?)",(student_id, section_id, current_date, grade))
+            conn.commit()
+            
+
+            return jsonify({'message': 'Student registered successfully'}), 200
+        
+    except Exception as e:
+            print(f"Error: {str(e)}")
+            return jsonify({'error': str(e)}), 500
+
+
+
+
+
+
+
 
 
 # Search Sections by Course ID
