@@ -111,13 +111,10 @@
             <button type="submit">Add Section</button>
         </form>
 
-
     </div>
-
-    <!-- Display successfuly added sections-->
-     <div id="sectionList"></div>
-
-
+    
+    <div id="sectionList"></div>
+        <!-- Display successfuly added sections-->
     </div>
 
     <div id="registerStudent">
@@ -136,16 +133,22 @@
 
             <label for="student_ID">Student ID:</label>
             <input type="text" id="student_ID" name="student_ID"><br>
-            
+
             <button type="submit">Register Student</button>
         </form>
-
-
+      <br>
     </div>
     
-    
-
-
+    <!-- Get sections a student is registered for -->
+    <div id="student_registered">
+        <h2>Get List of Courses for a Student</h2><br>
+        <label for="reg_student_id">Student ID:</label>
+        <input type="text" id="reg_student_id" placeholder="Student ID"><br>
+        <button id="reg_stud_button" onclick="showStudentReg()">Show Courses for Student</button><br>
+    </div><br><br>
+    <div id="student_registered_list">
+        <!-- courses a student is registered for go here -->
+    </div><br><br>
 
     <button id="showStudentsButton" onclick="showAllStudents()">Show All Students</button>
     <button id="showCoursesButton" onclick="showAllCourses()">Show All Courses</button>

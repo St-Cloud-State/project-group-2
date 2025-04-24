@@ -555,9 +555,6 @@ function sectionDropDown() {
         .then(response => response.json())
         .then(data => {
             let str = "";
-            console.log('this is courseId', courseId);
-            console.log('this is data', data);
-            console.log('this is data.sections', data.sections);
             
             if (data.sections && data.sections.length) {
                 data.sections.forEach(section => {
@@ -572,5 +569,36 @@ function sectionDropDown() {
             document.getElementById('section_ID').innerHTML = str;
         })
         .catch(error => console.error("Error fetching sections", error));
+
+}
+
+function showStudentReg(){
+    const studentId = document.getElementById('reg_student_id').value.trim();
+
+    fetch(`api/course_by_student?student_id=${studentId}`)
+        .then(response => response.json())
+        .then(data => {
+            const results = document.getElementById('student_registered_list');
+            results.innerHTML = ''; // Clear previous results
+            if(data && data.length) {
+                results.innerHTML = `<h2>Course List for: ${data[0].student_name}</h2>`;
+                data.forEach(course => {
+                    const courseElement = document.createElement('div');
+                    courseElement.innerHTML = `
+                    <h3>${course.course_id} ${course.course_name}</h3>
+                        <p>Section ID: ${course.section_id}</p>
+                        <p>Semester: ${course.semester}</p>
+                        <p>Year: ${course.year}</p>
+                    `;
+                    results.appendChild(courseElement);
+                })
+            } else {
+                // no data found
+                results.innerHTML = '<p>This student is not registered for any courses</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching course data:', error);
+        });
 
 }

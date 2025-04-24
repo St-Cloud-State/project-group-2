@@ -192,6 +192,8 @@ def registerStudent():
 
         # parse the section id from the section info
         section_info = data.get('section_ID')
+        if section_info == 'No Sections Available For This Course':
+            return jsonify({'message': 'There are no Sections available for this course'}), 201
         section_id = section_info.split(" ")[0]
 
         student_id = data.get('student_ID')
@@ -425,6 +427,50 @@ def query():
         print(f"error: ", str(e))
         return jsonify({'error': str(e)}), 500 
 
+
+# Get courses by student id
+@app.route('/api/course_by_student', methods=['GET'])
+def get_courses_by_student():
+    student_id = request.args.get('student_id')
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    
+    if not student_id:
+        return jsonify({'message': 'Please enter a valid Student ID'})
+    
+    # check if student exits
+    cursor.execute("SELECT * FROM students WHERE student_id = ?", student_id)
+    stud_exist = cursor.fetchone()
+    
+    if not stud_exist:
+        return jsonify({'message': 'There is no student with that ID'})
+
+
+    cursor.execute(
+        "SELECT registrations.student_id, courses.course_id, courses.course_name, " 
+        "sections.section_id, sections.semester, sections.year, " 
+        "students.first_name, students.last_name "
+        "FROM registrations "
+        "JOIN sections ON registrations.section_id = sections.section_id "
+        "JOIN courses ON courses.course_id = sections.course_id "
+        "JOIN students ON students.student_id = registrations.student_id "
+        "WHERE registrations.student_id = ?", student_id,)    
+
+    registered_courses = cursor.fetchall()
+    course_list = []
+    for course in registered_courses:
+        data = {
+            'student_id': course[0],
+            'course_id': course[1],
+            'course_name': course[2],
+            'section_id': course[3],
+            'semester': course[4],
+            'year': course[5],
+            'student_name': f"{course[6]} {course[7]}" 
+        }
+        course_list.append(data)
+
+    return jsonify(course_list)
 
 # Route to render the index.html page
 @app.route('/')
