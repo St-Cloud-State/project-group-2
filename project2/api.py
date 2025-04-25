@@ -315,8 +315,50 @@ def printTranscript():
             return jsonify({'error': str(e)}), 500
 
 
+# Get all the students registered for a section
+@app.route('/api/students_section', methods=['GET'])
+def get_students_in_section():
+    try:
+    
+        section_id = request.args.get('section_id')
+
+        if section_id == 'No Sections Available For This Course':
+            return jsonify({'message': 'There are no Sections available for this course'}), 201
+        
+
+        
+        with sqlite3.connect(DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT registrations.student_id, students.first_name, students.last_name, "
+                "registrations.section_id, sections.instructor, sections.semester, sections.year "
+                "FROM registrations "
+                "JOIN students ON registrations.student_id = students.student_id "
+                "JOIN sections ON registrations.section_id = sections.section_id "
+                "WHERE registrations.section_id = ? ", (section_id,))
+
+            data = cursor.fetchall()
+            students = []
+            for student in data:
+                student_data = {
+                    'student_id': student[0],
+                    'student_name': f"{student[1]} {student[2]}",
+                }
+                students.append(student_data)
+            
+            section_data = {
+                'section_id': data[0][3],
+                'instructor': data[0][4],
+                'semester': data[0][5],
+                'year': data[0][6]
+            }
 
 
+            return jsonify({'students': students, 'section': section_data}), 200
+        
+    except Exception as e:
+            print(f"Error: {str(e)}")
+            return jsonify({'error': str(e)}), 500
 
 # Search Sections by Course ID
 @app.route('/api/search_sections', methods=['GET'])

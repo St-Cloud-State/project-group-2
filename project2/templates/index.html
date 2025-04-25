@@ -150,6 +150,25 @@
         <!-- courses a student is registered for go here -->
     </div><br><br>
 
+    <div id="students_section">
+        <h2>Get list of Students in a Section</h2><br>
+        <label for="avail_courses">Course ID</label>
+        <select id="avail_courses">
+                <!--Available Courses Go here-->
+        </select>
+
+        <label for="avail_sections">Section ID:</label>
+        <select id="avail_sections">
+                <!--Available Sections Go here-->
+        </select>
+
+        <button id="get_students_section" onclick="studentsInSection()">Show Students in Section</button>
+    </div><br><br>
+    
+    <div id="students_in_section">
+        <!--Student list goes here-->
+    </div><br><br>
+
     <button id="showStudentsButton" onclick="showAllStudents()">Show All Students</button>
     <button id="showCoursesButton" onclick="showAllCourses()">Show All Courses</button>
     <!-- Display students in this div -->

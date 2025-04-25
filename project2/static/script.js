@@ -605,7 +605,9 @@ function search() {
 
 // Put the list of courses in the drop down
 document.getElementById('register_course_id').onchange = sectionDropDown;
+
 courseDropDown.call(document.getElementById('register_course_id'));
+
 
 function courseDropDown() {
     fetch('api/courses')
@@ -647,6 +649,52 @@ function sectionDropDown() {
 
 }
 
+
+
+availCourseDropDown.call(document.getElementById('avail_courses'));
+document.getElementById('avail_courses').onchange = availSectionDropDown;
+
+function availCourseDropDown() {
+    fetch('api/courses')
+        .then(response => response.json())
+        .then(data => {
+            let str = "<option>>-- Select a Course --<</option>";
+            data.courses.forEach(course => {
+                str += "<option>" + course.course_id + "</option>"
+            });
+
+            document.getElementById('avail_courses').innerHTML = str;
+        })
+        .catch(error => console.error("Error fetching courses", error));
+        availSectionDropDown();
+}
+
+
+
+// Put the sections of the selected course in the drop down
+function availSectionDropDown() {
+    const courseId = document.getElementById('avail_courses').value;
+    fetch(`api/search_sections?course_id=${courseId}`)
+        .then(response => response.json())
+        .then(data => {
+            let str = "";
+            
+            if (data.sections && data.sections.length) {
+                data.sections.forEach(section => {
+                    str += "<option>" + section.section_id + " - " + section.semester + " - " + section.year + "</option>"
+                });
+            }
+            else {
+                str += "<option>No Sections Available For This Course</option>";
+            }
+            
+
+            document.getElementById('avail_sections').innerHTML = str;
+        })
+        .catch(error => console.error("Error fetching sections", error));
+
+}
+
 function showStudentReg(){
     const studentId = document.getElementById('reg_student_id').value.trim();
 
@@ -664,6 +712,7 @@ function showStudentReg(){
                         <p>Section ID: ${course.section_id}</p>
                         <p>Semester: ${course.semester}</p>
                         <p>Year: ${course.year}</p>
+                        <hr>
                     `;
                     results.appendChild(courseElement);
                 })
@@ -676,4 +725,39 @@ function showStudentReg(){
             console.error('Error fetching course data:', error);
         });
 
+}
+
+function studentsInSection() {
+    const sectionId = document.getElementById('avail_sections').value.split(" ")[0];
+    
+    const courseId = document.getElementById('avail_courses').value;
+    fetch(`api/students_section?section_id=${sectionId}`)
+        .then(response => response.json())
+        .then(data => {
+            const results = document.getElementById('students_in_section');
+            results.innerHTML = '';
+            if (data.students && data.students.length) {
+                results.innerHTML = `
+                <h2>Student List for: ${courseId} - ${data.section.section_id}</h2><br>
+                <h3>Instructor: ${data.section.instructor}</h3>
+                <h3>Semester: ${data.section.semester} ${data.section.year}</h3><hr>
+                <h4>Student Name (Student ID)</h4>
+                `;
+
+                let i = 1;
+                data.students.forEach(student => {
+                    const sectionElement = document.createElement('div');
+                    sectionElement.innerHTML = `<h4>${i}: ${student.student_name} (${student.student_id})</h4>`;
+                    i++;
+                    results.appendChild(sectionElement);
+                })
+
+                results.appendChild(document.createElement('hr'));
+            } else {
+                results.innerHTML = `<p>No students are registered for this section</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching student/section data', error);
+        })
 }
