@@ -289,26 +289,59 @@ def printTranscript():
          with sqlite3.connect(DATABASE) as conn:
              cursor = conn.cursor()
  
-             #checking if the section exists
+             #checking if the student exists
              cursor.execute("SELECT 1 FROM students WHERE student_id = ?", (student_id,))
              studentExists = cursor.fetchone() is not None
  
              
              if studentExists:
-                cursor.execute("SELECT * FROM students WHERE student_id = ?",(student_id,))
-                studentPersonalData = cursor.fetchone()
+                
+                #Get student info
+                cursor.execute(
+                    "SELECT first_name, last_name, student_id, date_of_birth, email, address, phone "
+                    "FROM students WHERE student_id = ?", (student_id,)
+                )
+                personalInfo = cursor.fetchone()
 
-                cursor.execute("SELECT grade, section_id FROM registrations WHERE student_id =?", (student_id,))
-                studentGrades = cursor.fetchall()
+                #Get the course info
+                cursor.execute(
+                    "SELECT courses.course_name, sections.year, registrations.grade "
+                    "FROM registrations "
+                    "JOIN sections ON registrations.section_id = sections.section_id "
+                    "JOIN courses ON sections.course_id = courses.course_id "
+                    "WHERE registrations.student_id = ? ",(student_id,)
+                )
+                courseData = cursor.fetchall()
+                
+                #Turn the retreived data froms tuples to strings
+                with open(f"transcript_for_{student_id}.txt", "w") as outfile:
+                    personalInfoToString = (
+                        f"Name: {personalInfo[0]} {personalInfo[1]}\n"
+                        f"ID: {personalInfo[2]}\n"
+                        f"DOB: {personalInfo[3]}\n"
+                        f"Email: {personalInfo[4]}\n"
+                        f"Address: {personalInfo[5]}\n"
+                        f"Phone number: {personalInfo[6]}\n"
+                    )
+
+                    outfile.write(personalInfoToString)
+                    outfile.write(f"{'Course Name:':<20} {'Year:':<6} {'Grade:'} \n")
+                    outfile.write("-" * 35 + "\n")
+
+                    for course in courseData:
+                        courseDataToString = (
+                            f"{course[0]:<20} {course[1]:<6} {course[2]}\n"
+                        )
+                        outfile.write(courseDataToString)
+                return jsonify({'message': 'Transcript made successfully'}), 200
              
              else:
-                print("No exist")
-             
+                return jsonify({'message': 'The student does not exist'}), 400
              
             
              
  
-             return jsonify({'message': 'Transcript made successfully'}), 200
+             
 
     except Exception as e:
             print(f"Error: {str(e)}")

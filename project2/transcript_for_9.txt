@@ -1,0 +1,10 @@
+Name: Walter White
+ID: 9
+DOB: 09-07-1958
+Email: saulg@savewalterwhite.com
+Address: 308 Negra Arroyo Ln.  Albuquerque NM 87104
+Phone number: 505-842-5662
+Course Name:         Year:  Grade: 
+------------------------------
+History of Gaming    2025   Z
+Intro to Evil        2026   A
