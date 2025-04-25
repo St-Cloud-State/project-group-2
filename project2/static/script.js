@@ -250,6 +250,81 @@ function registerStudent(event){
 }
 document.getElementById('registerForm').addEventListener('submit', registerStudent);
 
+//Add a grade to student's section
+function addGrade(event){
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('addGradeForm'));
+
+    //Registration Object
+    const registrationData = {
+        section_ID: formData.get('section_ID'),
+        student_ID: formData.get('student_ID'),
+        grade:  formData.get('grade')
+    };
+
+    fetch('/api/addGrade',{
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(registrationData)
+
+    })
+
+    .then(response => {
+        if (!response.ok){
+            return response.json().then(data =>{
+                throw new Error(data.message);
+            })
+        }
+        return response.json();
+            
+    })
+
+    .then(data =>{
+        console.log(data.message);
+        //Sends the alert message upon success
+        alert(data.message);
+    })
+    .catch(error =>{
+        console.error('Error adding grade', error);
+        alert(error.message);
+    });
+    
+}
+document.getElementById('addGradeForm').addEventListener('submit', addGrade);
+
+//Print a student's transcript
+function printTranscript(event){
+    event.preventDefault();
+
+    const formData = new FormData(document.getElementById('printTranscriptForm'));
+
+    const transcriptData ={
+        student_ID: formData.get('student_ID')
+    };
+
+    fetch('/api/printTranscript',{
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(transcriptData)
+
+    })
+
+    .then(response =>response.json()) 
+
+    .then(data =>{
+        console.log(data.message);
+        //Sends the alert message upon success
+        alert(data.message);
+    })
+    .catch(error =>{
+        console.error('Error printing transcript', error);
+        alert(error.message);
+    });
+
+}
+document.getElementById('printTranscriptForm').addEventListener('submit', printTranscript);
+
+
 // Function to fetch and display all students from the server
 function showAllStudents() {
     fetch('/api/students')
